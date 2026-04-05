@@ -85,6 +85,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
 function renderAll() {
   renderStats();
   renderTable();
+  fetchAnalytics(currentRange);
 }
 
 function renderStats() {
@@ -274,3 +275,149 @@ document.getElementById('modal-save').addEventListener('click', async () => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeModal();
 });
+
+// ── Analytics ─────────────────────────────────────
+let currentRange = 7;
+
+// Range toggle buttons
+document.querySelectorAll('.range-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRange = parseInt(btn.dataset.days, 10);
+    fetchAnalytics(currentRange);
+  });
+});
+
+async function fetchAnalytics(days) {
+  try {
+    const res = await fetch(`/.netlify/functions/get-analytics?days=${days}`, {
+      headers: { 'X-Admin-Password': getPassword() },
+    });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+    renderAnalytics(data, days);
+  } catch (_) {
+    // Silently fail — analytics shouldn't block the dashboard
+  }
+}
+
+function renderAnalytics(data, days) {
+  // Overview stats
+  document.getElementById('stat-views').textContent = data.totalViews.toLocaleString();
+  document.getElementById('stat-leads-period').textContent = data.totalLeads.toLocaleString();
+
+  const convRate = data.totalViews > 0
+    ? ((data.totalLeads / data.totalViews) * 100).toFixed(1) + '%'
+    : '0%';
+  document.getElementById('stat-conversion').textContent = convRate;
+
+  // Build chart
+  renderChart(data.viewsByDay, data.leadsByDay, days);
+
+  // Top pages
+  renderTopPages(data.topPages);
+
+  // A/B performance
+  renderABPerformance(data.viewsByVariant, data.leadsByVariant);
+}
+
+function renderChart(viewsByDay, leadsByDay, days) {
+  const container = document.getElementById('chart-container');
+
+  // Generate all dates in range
+  const dates = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000);
+    dates.push(d.toISOString().slice(0, 10));
+  }
+
+  const maxViews = Math.max(1, ...dates.map(d => viewsByDay[d] || 0));
+  const maxLeads = Math.max(1, ...dates.map(d => leadsByDay[d] || 0));
+  const maxVal = Math.max(maxViews, maxLeads);
+
+  container.innerHTML = dates.map(d => {
+    const views = viewsByDay[d] || 0;
+    const leads = leadsByDay[d] || 0;
+    const viewH = Math.max(2, (views / maxVal) * 100);
+    const leadH = Math.max(leads > 0 ? 4 : 0, (leads / maxVal) * 100);
+    const label = new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+    return `
+      <div class="chart-bar-group" title="${label}: ${views} views, ${leads} leads">
+        <div class="chart-bars">
+          <div class="chart-bar views" style="height:${viewH}%"></div>
+          ${leads > 0 ? `<div class="chart-bar leads" style="height:${leadH}%"></div>` : ''}
+        </div>
+        ${days <= 14 ? `<div class="chart-label">${label.split(' ')[1]}</div>` : ''}
+      </div>
+    `;
+  }).join('') + `
+    <div class="chart-legend" style="position:absolute;bottom:-28px;left:0;">
+      <span><span class="chart-legend-dot views"></span> Views</span>
+      <span><span class="chart-legend-dot leads"></span> Leads</span>
+    </div>
+  `;
+
+  container.style.position = 'relative';
+  container.style.marginBottom = '36px';
+}
+
+function renderTopPages(topPages) {
+  const el = document.getElementById('top-pages');
+
+  if (!topPages.length) {
+    el.innerHTML = '<div class="analytics-empty">No page views yet.</div>';
+    return;
+  }
+
+  el.innerHTML = topPages.map(p => `
+    <div class="top-page-row">
+      <span class="top-page-path" title="${esc(p.page)}">${esc(p.page)}</span>
+      <span class="top-page-count">${p.count} views</span>
+    </div>
+  `).join('');
+}
+
+function renderABPerformance(viewsByVariant, leadsByVariant) {
+  const el = document.getElementById('ab-performance');
+
+  const variants = ['A', 'B', 'C'];
+  const labels = { A: 'Email', B: 'Phone', C: 'Both' };
+
+  const rows = variants.map(v => {
+    const views = viewsByVariant[v] || 0;
+    const leads = leadsByVariant[v] || 0;
+    const rate = views > 0 ? ((leads / views) * 100).toFixed(1) : '0.0';
+    const rateNum = parseFloat(rate);
+
+    let rateClass = 'conversion-low';
+    if (rateNum >= 5) rateClass = 'conversion-good';
+    else if (rateNum >= 2) rateClass = 'conversion-mid';
+
+    return `
+      <tr>
+        <td><span class="variant-tag">${v}</span> ${labels[v]}</td>
+        <td>${views}</td>
+        <td>${leads}</td>
+        <td class="${rateClass}">${rate}%</td>
+      </tr>
+    `;
+  });
+
+  el.innerHTML = `
+    <table class="ab-table">
+      <thead>
+        <tr>
+          <th>Variant</th>
+          <th>Views</th>
+          <th>Leads</th>
+          <th>Conv. Rate</th>
+        </tr>
+      </thead>
+      <tbody>${rows.join('')}</tbody>
+    </table>
+  `;
+}

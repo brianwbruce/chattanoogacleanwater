@@ -1,5 +1,6 @@
 // Form submission handler
 // Dual submit: Netlify Forms (backup) + Netlify Function -> Supabase (primary)
+// GA4 custom events: form_view, form_start, form_submit
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('lead-form');
@@ -8,6 +9,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const successEl = document.getElementById('form-success');
 
   if (!form) return;
+
+  // GA4: Track when form section scrolls into view
+  const formSection = document.getElementById('form');
+  if (formSection && typeof IntersectionObserver !== 'undefined') {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (typeof gtag === 'function') {
+            gtag('event', 'form_view');
+          }
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    observer.observe(formSection);
+  }
+
+  // GA4: Track first interaction with form (form_start)
+  let formStarted = false;
+  form.querySelectorAll('input:not([type="hidden"])').forEach(input => {
+    input.addEventListener('focus', () => {
+      if (!formStarted) {
+        formStarted = true;
+        if (typeof gtag === 'function') {
+          gtag('event', 'form_start');
+        }
+      }
+    });
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -41,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.classList.add('loading');
 
     const formData = new FormData(form);
+    const variant = formData.get('variant');
 
     // 1) Fire-and-forget to Netlify Forms (backup)
     try {
@@ -60,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         last_name: formData.get('last_name')?.trim(),
         email: formData.get('email')?.trim() || null,
         phone: formData.get('phone')?.trim() || null,
-        variant: formData.get('variant'),
+        variant: variant,
       };
 
       const res = await fetch('/.netlify/functions/submit-lead', {
@@ -73,6 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error('Submission failed');
       }
 
+      // GA4: Track successful submission
+      if (typeof gtag === 'function') {
+        gtag('event', 'form_submit', { variant: variant });
+      }
+
       // Success — hide form, show thank you
       form.style.display = 'none';
       successEl.classList.add('show');
@@ -80,6 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       // Supabase failed but Netlify Forms backup was sent
       // Still show success since the lead was captured
+      if (typeof gtag === 'function') {
+        gtag('event', 'form_submit', { variant: variant });
+      }
       form.style.display = 'none';
       successEl.classList.add('show');
     } finally {

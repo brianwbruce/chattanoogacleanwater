@@ -65,4 +65,9 @@ function applyVariant(variant) {
 document.addEventListener('DOMContentLoaded', () => {
   const variant = assignVariant();
   applyVariant(variant);
+
+  // GA4: Track which variant was assigned
+  if (typeof gtag === 'function') {
+    gtag('event', 'variant_assigned', { variant: variant });
+  }
 });

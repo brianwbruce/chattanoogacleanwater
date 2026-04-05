@@ -53,6 +53,52 @@
         </div>
       </div>
 
+      <!-- ── Analytics Section ──────────────── -->
+      <div class="analytics-section" id="analytics-section">
+        <div class="analytics-header">
+          <h2>Analytics</h2>
+          <div class="analytics-controls">
+            <button class="btn btn-sm range-btn active" data-days="7">7 Days</button>
+            <button class="btn btn-sm range-btn" data-days="30">30 Days</button>
+            <a href="https://analytics.google.com" target="_blank" class="btn btn-sm btn-ghost">GA4 Dashboard &rarr;</a>
+          </div>
+        </div>
+
+        <!-- Traffic + Leads Overview -->
+        <div class="analytics-overview">
+          <div class="stat-card">
+            <div class="number" id="stat-views">-</div>
+            <div class="label">Page Views</div>
+          </div>
+          <div class="stat-card">
+            <div class="number" id="stat-leads-period">-</div>
+            <div class="label">Leads</div>
+          </div>
+          <div class="stat-card">
+            <div class="number" id="stat-conversion">-</div>
+            <div class="label">Conversion Rate</div>
+          </div>
+        </div>
+
+        <!-- Chart: Views by Day -->
+        <div class="analytics-card">
+          <h3>Traffic &amp; Leads by Day</h3>
+          <div class="chart-container" id="chart-container"></div>
+        </div>
+
+        <!-- Two-column: Top Pages + A/B Performance -->
+        <div class="analytics-two-col">
+          <div class="analytics-card">
+            <h3>Top Pages</h3>
+            <div id="top-pages"></div>
+          </div>
+          <div class="analytics-card">
+            <h3>A/B Test Performance</h3>
+            <div id="ab-performance"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Filters -->
       <div class="filters">
         <input type="text" id="search-input" placeholder="Search by name, email, or phone..." />

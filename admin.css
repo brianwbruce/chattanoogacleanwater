@@ -347,10 +347,232 @@ tr:hover { background: var(--off-white); }
 
 .btn-cancel:hover { background: #C8D0D4; }
 
+/* ── Analytics Section ─────────────────────────── */
+.analytics-section {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 2px solid var(--gray-light);
+}
+
+.analytics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.analytics-header h2 {
+  font-size: 1.15rem;
+  color: var(--blue-dark);
+  margin: 0;
+}
+
+.analytics-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.range-btn {
+  background: var(--gray-light);
+  color: var(--text-soft);
+  border: none;
+}
+
+.range-btn.active {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.range-btn:hover:not(.active) {
+  background: #C8D0D4;
+}
+
+.analytics-overview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.analytics-card {
+  background: var(--white);
+  border: 1px solid var(--gray-light);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.analytics-card h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-soft);
+  margin-bottom: 16px;
+}
+
+.analytics-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.analytics-two-col .analytics-card {
+  margin-bottom: 0;
+}
+
+/* ── Bar Chart ─────────────────────────────────── */
+.chart-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 120px;
+  padding-top: 8px;
+}
+
+.chart-bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.chart-bars {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  width: 100%;
+  justify-content: center;
+}
+
+.chart-bar {
+  width: 8px;
+  min-height: 2px;
+  border-radius: 2px 2px 0 0;
+  transition: height 0.3s;
+}
+
+.chart-bar.views {
+  background: var(--blue);
+  opacity: 0.4;
+}
+
+.chart-bar.leads {
+  background: var(--green);
+}
+
+.chart-label {
+  font-size: 0.65rem;
+  color: var(--gray);
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
+.chart-legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.chart-legend-dot.views { background: var(--blue); opacity: 0.4; }
+.chart-legend-dot.leads { background: var(--green); }
+
+/* ── Top Pages List ────────────────────────────── */
+.top-page-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gray-light);
+  font-size: 0.88rem;
+}
+
+.top-page-row:last-child {
+  border-bottom: none;
+}
+
+.top-page-path {
+  color: var(--text);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.top-page-count {
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+/* ── A/B Performance Table ─────────────────────── */
+.ab-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.ab-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-soft);
+  border-bottom: 2px solid var(--gray-light);
+  cursor: default;
+}
+
+.ab-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gray-light);
+  white-space: nowrap;
+}
+
+.ab-table tr:last-child td {
+  border-bottom: none;
+}
+
+.conversion-good { color: var(--green); font-weight: 600; }
+.conversion-mid  { color: var(--amber); font-weight: 600; }
+.conversion-low  { color: var(--red); font-weight: 600; }
+
+.analytics-empty {
+  text-align: center;
+  color: var(--text-soft);
+  padding: 24px;
+  font-size: 0.9rem;
+}
+
 /* ── Responsive ────────────────────────────────── */
 @media (max-width: 768px) {
   .stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .analytics-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-two-col {
+    grid-template-columns: 1fr;
   }
 
   .topbar {
