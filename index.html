@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Clean Water for Chattanooga Homes | Free Water Quality Consultation</title>
+  <meta name="description" content="Worried about your tap water in Chattanooga? Find out what's really in your water and connect with local purification specialists. Free consultation." />
+  <meta name="keywords" content="Chattanooga water purification, clean water Chattanooga, water quality Chattanooga TN, home water filter Chattanooga, water testing Hamilton County, hard water Chattanooga" />
+  <link rel="canonical" href="https://chattanoogacleanwater.com/" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Clean Water for Chattanooga Homes" />
+  <meta property="og:description" content="Find out what's really in your Chattanooga tap water. Free consultation with local water quality specialists." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://chattanoogacleanwater.com/" />
+  <meta property="og:image" content="https://chattanoogacleanwater.com/images/og-image.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700;900&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/style.css" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Chattanooga Clean Water",
+    "description": "Free water quality consultations for Chattanooga homeowners. Connect with local water purification specialists.",
+    "url": "https://chattanoogacleanwater.com",
+    "areaServed": {
+      "@type": "City",
+      "name": "Chattanooga",
+      "containedInPlace": {
+        "@type": "State",
+        "name": "Tennessee"
+      }
+    },
+    "serviceType": "Water Purification Consultation"
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ── Nav ─────────────────────────────────── -->
+  <nav class="nav" id="nav">
+    <div class="container nav-inner">
+      <div class="nav-logo">Chattanooga <span>Clean Water</span></div>
+      <a href="#form" class="btn btn-primary btn-nav">Free Consultation</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ────────────────────────────────── -->
+  <section class="hero">
+    <div class="container">
+      <h1>Do You Know What's in Your Chattanooga Tap Water?</h1>
+      <p>Aging pipes, chlorine treatment, and hard minerals are just the start. Most Chattanooga homeowners have no idea what they're drinking every day.</p>
+      <a href="#form" class="btn btn-outline">Find Out Now</a>
+    </div>
+  </section>
+
+  <!-- ── Proof ───────────────────────────────── -->
+  <section class="proof">
+    <div class="container">
+      <h2 class="proof-heading">What's Actually in Chattanooga's Water?</h2>
+      <div class="proof-grid">
+        <div class="proof-card">
+          <svg class="proof-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+          </svg>
+          <h3>Hard Water Minerals</h3>
+          <p>Chattanooga's water supply carries calcium and magnesium deposits that build up in your pipes, appliances, and on your skin and hair.</p>
+        </div>
+        <div class="proof-card">
+          <svg class="proof-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <h3>Chlorine &amp; Chemicals</h3>
+          <p>Treated to meet minimum safety standards, your tap water still contains chlorine, chloramines, and trace contaminants you can taste and smell.</p>
+        </div>
+        <div class="proof-card">
+          <svg class="proof-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <h3>Aging Infrastructure</h3>
+          <p>Many Chattanooga homes have pipes decades old. What your water picks up between the treatment plant and your faucet might surprise you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Form ────────────────────────────────── -->
+  <section class="form-section" id="form">
+    <div class="container">
+      <div class="form-wrapper">
+        <h2>Find Out What's Really in Your Water</h2>
+        <p class="subtitle">Get a free, no-obligation consultation with a local water quality specialist.</p>
+
+        <div class="form-error" id="form-error"></div>
+
+        <form
+          class="lead-form"
+          id="lead-form"
+          name="Lead Capture"
+          method="POST"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+        >
+          <input type="hidden" name="form-name" value="Lead Capture" />
+          <input type="hidden" name="variant" id="variant-field" value="" />
+          <p class="hidden"><label>Don't fill this out: <input name="bot-field" /></label></p>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fname">First Name</label>
+              <input type="text" id="fname" name="first_name" required autocomplete="given-name" />
+            </div>
+            <div class="form-group">
+              <label for="lname">Last Name</label>
+              <input type="text" id="lname" name="last_name" required autocomplete="family-name" />
+            </div>
+          </div>
+
+          <div class="form-group full" id="email-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" autocomplete="email" />
+          </div>
+
+          <div class="form-group full" id="phone-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" />
+          </div>
+
+          <button type="submit" class="btn btn-primary form-submit" id="submit-btn">
+            Get My Free Consultation
+          </button>
+        </form>
+
+        <div class="form-success" id="form-success">
+          <h3>You're All Set!</h3>
+          <p>A local water quality specialist will be in touch soon. We look forward to helping you and your family enjoy cleaner, healthier water.</p>
+        </div>
+
+        <p class="form-trust">Free. No obligation. Serving Chattanooga &amp; Hamilton County.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ──────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Chattanooga Clean Water. All rights reserved.</p>
+      <p>Serving Chattanooga, TN and surrounding areas.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/ab-test.js"></script>
+  <script type="module" src="/form-handler.js"></script>
+
+  <script>
+    // Nav scroll shadow
+    window.addEventListener('scroll', () => {
+      document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>

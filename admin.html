@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Leads Dashboard | Chattanooga Clean Water</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/admin.css" />
+</head>
+<body>
+
+  <!-- ── Login Screen ────────────────────────── -->
+  <div class="login-screen" id="login-screen">
+    <div class="login-box">
+      <h1>Leads Dashboard</h1>
+      <p>Chattanooga Clean Water</p>
+      <div class="login-error" id="login-error">Invalid password. Try again.</div>
+      <input type="password" id="password-input" placeholder="Enter password" />
+      <button class="btn btn-primary" id="login-btn">Log In</button>
+    </div>
+  </div>
+
+  <!-- ── Dashboard ───────────────────────────── -->
+  <div class="dashboard" id="dashboard">
+    <div class="topbar">
+      <h1>Chattanooga Clean Water &mdash; Leads</h1>
+      <button class="btn btn-ghost" id="logout-btn">Log Out</button>
+    </div>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="number" id="stat-total">0</div>
+          <div class="label">Total Leads</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="stat-a">0</div>
+          <div class="label">Variant A (Email)</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="stat-b">0</div>
+          <div class="label">Variant B (Phone)</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="stat-c">0</div>
+          <div class="label">Variant C (Both)</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <input type="text" id="search-input" placeholder="Search by name, email, or phone..." />
+        <select id="variant-filter">
+          <option value="">All Variants</option>
+          <option value="A">Variant A (Email)</option>
+          <option value="B">Variant B (Phone)</option>
+          <option value="C">Variant C (Both)</option>
+        </select>
+        <select id="status-filter">
+          <option value="">All Statuses</option>
+          <option value="New">New</option>
+          <option value="Contacted">Contacted</option>
+          <option value="Qualified">Qualified</option>
+          <option value="Closed-Won">Closed-Won</option>
+          <option value="Closed-Lost">Closed-Lost</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="name">Name <span class="sort-arrow"></span></th>
+              <th data-sort="email">Email <span class="sort-arrow"></span></th>
+              <th data-sort="phone">Phone <span class="sort-arrow"></span></th>
+              <th data-sort="variant">Variant <span class="sort-arrow"></span></th>
+              <th data-sort="status">Status <span class="sort-arrow"></span></th>
+              <th data-sort="created_at">Created <span class="sort-arrow"></span></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="leads-body"></tbody>
+        </table>
+        <div class="empty-state" id="empty-state" style="display:none;">No leads found.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Edit Modal ──────────────────────────── -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h2>Edit Lead</h2>
+      <input type="hidden" id="edit-id" />
+      <label for="edit-status">Status</label>
+      <select id="edit-status">
+        <option value="New">New</option>
+        <option value="Contacted">Contacted</option>
+        <option value="Qualified">Qualified</option>
+        <option value="Closed-Won">Closed-Won</option>
+        <option value="Closed-Lost">Closed-Lost</option>
+      </select>
+      <label for="edit-notes">Notes</label>
+      <textarea id="edit-notes" placeholder="Add notes about this lead..."></textarea>
+      <div class="modal-actions">
+        <button class="btn btn-sm btn-cancel" id="modal-cancel">Cancel</button>
+        <button class="btn btn-sm btn-save" id="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/admin.js"></script>
+</body>
+</html>
