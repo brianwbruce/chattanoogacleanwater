@@ -103,7 +103,14 @@
       <div class="live-chats-section" id="live-chats-section">
         <div class="live-chats-header">
           <h2>Live Chats <span class="chat-count-badge" id="chat-count-badge" style="display:none;">0</span></h2>
-          <button class="btn btn-sm btn-ghost" id="refresh-chats">Refresh</button>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <label class="avail-toggle" id="avail-toggle">
+              <input type="checkbox" id="avail-checkbox" checked />
+              <span class="avail-slider"></span>
+              <span class="avail-label" id="avail-label">Available</span>
+            </label>
+            <button class="btn btn-sm btn-ghost" id="refresh-chats">Refresh</button>
+          </div>
         </div>
         <div id="chat-sessions-list">
           <div class="analytics-empty">No active chats.</div>

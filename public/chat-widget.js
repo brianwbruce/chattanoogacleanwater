@@ -6,8 +6,10 @@
   let lastPollTime = '1970-01-01T00:00:00Z';
   let isOpen = false;
   let showingEscalateForm = false;
+  let waitingTimeout = null;
 
   const CALENDLY_URL = 'https://calendly.com'; // Updated once Mark's Calendly is set up
+  const WAITING_TIMEOUT_MS = 120000; // 2 minutes
 
   // ── Build DOM ──────────────────────────────────
   function createWidget() {
@@ -177,11 +179,13 @@
         statusEl.classList.remove('live');
         if (escalateLink) escalateLink.style.display = 'none';
         startPolling();
+        startWaitingTimeout();
         break;
       case 'active':
         statusEl.textContent = 'Chatting with Mark';
         statusEl.classList.add('live');
         if (escalateLink) escalateLink.style.display = 'none';
+        clearWaitingTimeout();
         break;
       case 'closed':
         statusEl.textContent = 'Chat ended';
@@ -189,6 +193,25 @@
         stopPolling();
         showClosedState();
         break;
+    }
+  }
+
+  // ── Waiting Timeout ─────────────────────────────
+  function startWaitingTimeout() {
+    clearWaitingTimeout();
+    waitingTimeout = setTimeout(() => {
+      if (chatStatus === 'waiting') {
+        addMessage('ai', "Our team is currently working with other customers. Please choose a time for a callback and we'll reach out to you directly.");
+        addMessage('ai', "Schedule a Callback");
+        updateStatus('closed');
+      }
+    }, WAITING_TIMEOUT_MS);
+  }
+
+  function clearWaitingTimeout() {
+    if (waitingTimeout) {
+      clearTimeout(waitingTimeout);
+      waitingTimeout = null;
     }
   }
 
@@ -264,7 +287,7 @@
 
       if (data.success) {
         showingEscalateForm = false;
-        updateStatus('waiting');
+        updateStatus(data.status || 'waiting');
         restoreInputArea();
         // The escalation function inserts a system message — poll will pick it up
         pollNow();

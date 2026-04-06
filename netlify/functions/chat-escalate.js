@@ -16,6 +16,17 @@ export default async (req) => {
 
     const SUPABASE_URL = Netlify.env.get('SUPABASE_URL');
     const SUPABASE_KEY = Netlify.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const CALENDLY_URL = Netlify.env.get('CALENDLY_URL') || 'https://calendly.com';
+
+    // Check if Mark is available
+    const availRes = await fetch(`${SUPABASE_URL}/rest/v1/settings?key=eq.mark_available&select=value`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+      },
+    });
+    const availData = await availRes.json();
+    const markAvailable = availData[0]?.value === 'true';
 
     // Create lead (variant 'B' since we have phone number)
     const leadRes = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
@@ -43,7 +54,45 @@ export default async (req) => {
     const leads = await leadRes.json();
     const leadId = Array.isArray(leads) && leads[0] ? leads[0].id : null;
 
-    // Update chat session
+    if (!markAvailable) {
+      // Mark is away — skip waiting, go straight to callback
+      await fetch(`${SUPABASE_URL}/rest/v1/chat_sessions?id=eq.${session_id}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_name: first_name,
+          user_phone: phone,
+          lead_id: leadId,
+          status: 'closed',
+          updated_at: new Date().toISOString(),
+        }),
+      });
+
+      await fetch(`${SUPABASE_URL}/rest/v1/chat_messages`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_id,
+          role: 'ai',
+          content: "Our team is currently working with other customers. Please choose a time for a callback and we'll reach out to you directly. Click the 'Schedule a Callback' button below.",
+        }),
+      });
+
+      return new Response(JSON.stringify({ success: true, status: 'closed' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Mark is available — set to waiting and notify
     await fetch(`${SUPABASE_URL}/rest/v1/chat_sessions?id=eq.${session_id}`, {
       method: 'PATCH',
       headers: {
@@ -60,7 +109,6 @@ export default async (req) => {
       }),
     });
 
-    // Insert system message
     await fetch(`${SUPABASE_URL}/rest/v1/chat_messages`, {
       method: 'POST',
       headers: {
@@ -99,7 +147,6 @@ export default async (req) => {
       }
     } catch (smsErr) {
       console.error('Twilio SMS error:', smsErr);
-      // Don't fail the escalation if SMS fails
     }
 
     return new Response(JSON.stringify({ success: true, status: 'waiting' }), {

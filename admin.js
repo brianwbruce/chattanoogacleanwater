@@ -290,8 +290,40 @@ let chatLastPoll = '1970-01-01T00:00:00Z';
 // Start polling for sessions when dashboard loads
 function startSessionPolling() {
   fetchChatSessions();
+  fetchAvailability();
   sessionPollInterval = setInterval(fetchChatSessions, 10000);
 }
+
+// Availability toggle
+async function fetchAvailability() {
+  try {
+    const res = await fetch('/.netlify/functions/chat-status', {
+      method: 'POST',
+      headers: apiHeaders(),
+      body: JSON.stringify({ action: 'get_availability' }),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const checkbox = document.getElementById('avail-checkbox');
+    const label = document.getElementById('avail-label');
+    checkbox.checked = data.available;
+    label.textContent = data.available ? 'Available' : 'Away';
+  } catch (_) {}
+}
+
+document.getElementById('avail-checkbox').addEventListener('change', async (e) => {
+  const available = e.target.checked;
+  const label = document.getElementById('avail-label');
+  label.textContent = available ? 'Available' : 'Away';
+
+  try {
+    await fetch('/.netlify/functions/chat-status', {
+      method: 'POST',
+      headers: apiHeaders(),
+      body: JSON.stringify({ action: 'set_availability', available }),
+    });
+  } catch (_) {}
+});
 
 async function fetchChatSessions() {
   try {

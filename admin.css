@@ -370,6 +370,55 @@ tr:hover { background: var(--off-white); }
   gap: 8px;
 }
 
+/* Availability Toggle */
+.avail-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  user-select: none;
+}
+
+.avail-toggle input {
+  display: none;
+}
+
+.avail-slider {
+  width: 36px;
+  height: 20px;
+  background: var(--gray-light);
+  border-radius: 10px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.avail-slider::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--white);
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.avail-toggle input:checked + .avail-slider {
+  background: var(--green);
+}
+
+.avail-toggle input:checked + .avail-slider::after {
+  transform: translateX(16px);
+}
+
+.avail-label {
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
 .chat-count-badge {
   background: var(--red);
   color: var(--white);
