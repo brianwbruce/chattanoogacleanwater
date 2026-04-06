@@ -69,7 +69,7 @@ export default async (req) => {
 
     switch (status) {
       case 'active':
-        systemMessage = 'Mark has joined the chat. How can I help you today?';
+        systemMessage = 'A water quality specialist has joined the chat. How can I help you today?';
         break;
       case 'unavailable':
         newStatus = 'closed';

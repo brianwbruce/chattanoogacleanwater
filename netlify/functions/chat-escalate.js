@@ -119,7 +119,7 @@ export default async (req) => {
       body: JSON.stringify({
         session_id,
         role: 'ai',
-        content: "I've notified Mark, our local water quality specialist. He'll join this chat shortly. Feel free to keep typing — he'll see your messages when he connects.",
+        content: "I've notified our local water quality specialist. They'll join this chat shortly. Feel free to keep typing — they'll see your messages when they connect.",
       }),
     });
 

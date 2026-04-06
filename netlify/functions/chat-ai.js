@@ -119,7 +119,7 @@ export default async (req) => {
     if (sessionStatus === 'waiting') {
       return new Response(JSON.stringify({
         session_id: currentSessionId,
-        reply: "Mark has been notified and will join shortly. Feel free to keep typing — he'll see your messages when he connects.",
+        reply: "Our specialist has been notified and will join shortly. Feel free to keep typing — they'll see your messages when they connect.",
         status: sessionStatus,
       }), {
         status: 200,

@@ -84,7 +84,7 @@
     div.className = `ccw-msg ${roleClass}`;
 
     let labelText = '';
-    if (role === 'mark') labelText = 'Mark';
+    if (role === 'mark') labelText = 'Water Specialist';
     else if (role === 'ai') labelText = '';
 
     // Check for calendly trigger
@@ -175,14 +175,14 @@
         if (escalateLink) escalateLink.style.display = 'block';
         break;
       case 'waiting':
-        statusEl.textContent = 'Connecting you with Mark...';
+        statusEl.textContent = 'Connecting you with a specialist...';
         statusEl.classList.remove('live');
         if (escalateLink) escalateLink.style.display = 'none';
         startPolling();
         startWaitingTimeout();
         break;
       case 'active':
-        statusEl.textContent = 'Chatting with Mark';
+        statusEl.textContent = 'Chatting with a specialist';
         statusEl.classList.add('live');
         if (escalateLink) escalateLink.style.display = 'none';
         clearWaitingTimeout();
@@ -223,7 +223,7 @@
     const container = document.getElementById('ccw-input-container');
     container.innerHTML = `
       <div class="ccw-escalate-form" id="ccw-escalate-form">
-        <p>Enter your info and we'll connect you with Mark, our local water specialist.</p>
+        <p>Enter your info and we'll connect you with our local water specialist.</p>
         <input type="text" id="ccw-esc-name" placeholder="First name" required />
         <input type="tel" id="ccw-esc-phone" placeholder="Phone number" required />
         <button class="ccw-escalate-btn" id="ccw-esc-submit">Connect Me</button>
@@ -246,7 +246,7 @@
       <div class="ccw-chat-input-area" id="ccw-input-area">
         ${chatStatus === 'ai' ? '<button class="ccw-chat-escalate-link" id="ccw-escalate-link">Talk to a real person</button>' : ''}
         <div class="ccw-chat-input-row">
-          <input type="text" class="ccw-chat-input" id="ccw-input" placeholder="${chatStatus === 'active' ? 'Message Mark...' : 'Ask about Chattanooga water...'}" maxlength="2000" />
+          <input type="text" class="ccw-chat-input" id="ccw-input" placeholder="${chatStatus === 'active' ? 'Message your specialist...' : 'Ask about Chattanooga water...'}" maxlength="2000" />
           <button class="ccw-chat-send" id="ccw-send">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           </button>
