@@ -351,9 +351,10 @@ function renderChatSessions() {
 
   const activeSessions = chatSessions.filter(s => s.status === 'waiting' || s.status === 'active');
   const recentSessions = chatSessions.filter(s => s.status === 'closed');
+  const aiSessions = chatSessions.filter(s => s.status === 'ai');
 
-  if (!activeSessions.length && !recentSessions.length) {
-    list.innerHTML = '<div class="analytics-empty">No active chats.</div>';
+  if (!activeSessions.length && !recentSessions.length && !aiSessions.length) {
+    list.innerHTML = '<div class="analytics-empty">No chats yet.</div>';
     return;
   }
 
@@ -361,15 +362,18 @@ function renderChatSessions() {
 
   if (activeSessions.length) {
     html += activeSessions.map(s => renderChatCard(s)).join('');
+  } else {
+    html += '<div class="analytics-empty" style="padding:12px;">No active chats right now.</div>';
   }
 
   if (recentSessions.length) {
-    html += `<div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;color:#5A6B73;margin:16px 0 8px;font-weight:600;">Recent (last 24h)</div>`;
+    html += `<div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;color:#5A6B73;margin:16px 0 8px;font-weight:600;">Closed (last 24h)</div>`;
     html += recentSessions.map(s => renderChatCard(s)).join('');
   }
 
-  if (!activeSessions.length && recentSessions.length) {
-    html = '<div class="analytics-empty" style="padding:16px;">No active chats right now.</div>' + html;
+  if (aiSessions.length) {
+    html += `<div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;color:#5A6B73;margin:16px 0 8px;font-weight:600;">AI Conversations (last 24h) &mdash; what people are asking</div>`;
+    html += aiSessions.map(s => renderChatCard(s)).join('');
   }
 
   list.innerHTML = html;

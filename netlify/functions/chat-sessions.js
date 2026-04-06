@@ -17,8 +17,8 @@ export default async (req) => {
 
     const since24h = new Date(Date.now() - 86400000).toISOString();
 
-    // Get waiting + active sessions, and recently closed sessions with a name (escalated ones)
-    const [activeRes, recentRes] = await Promise.all([
+    // Get waiting + active, recently closed, and AI-only sessions (last 24h)
+    const [activeRes, recentRes, aiRes] = await Promise.all([
       fetch(
         `${SUPABASE_URL}/rest/v1/chat_sessions?status=in.(waiting,active)&order=updated_at.desc`,
         {
@@ -29,7 +29,16 @@ export default async (req) => {
         }
       ),
       fetch(
-        `${SUPABASE_URL}/rest/v1/chat_sessions?status=eq.closed&user_name=neq.&updated_at=gte.${since24h}&order=updated_at.desc&limit=20`,
+        `${SUPABASE_URL}/rest/v1/chat_sessions?status=eq.closed&updated_at=gte.${since24h}&order=updated_at.desc&limit=20`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+          },
+        }
+      ),
+      fetch(
+        `${SUPABASE_URL}/rest/v1/chat_sessions?status=eq.ai&updated_at=gte.${since24h}&order=updated_at.desc&limit=20`,
         {
           headers: {
             'apikey': SUPABASE_KEY,
@@ -41,8 +50,9 @@ export default async (req) => {
 
     const activeSessions = await activeRes.json();
     const recentSessions = await recentRes.json();
+    const aiSessions = await aiRes.json();
 
-    const allSessions = [...activeSessions, ...recentSessions];
+    const allSessions = [...activeSessions, ...recentSessions, ...aiSessions];
 
     // Get latest message for each session
     const enriched = await Promise.all(
