@@ -7,6 +7,7 @@
   let isOpen = false;
   let showingEscalateForm = false;
   let waitingTimeout = null;
+  let renderedMessageIds = new Set();
 
   const CALENDLY_URL = 'https://calendly.com/chattanoogacleanwater/30min';
   const WAITING_TIMEOUT_MS = 120000; // 2 minutes
@@ -187,6 +188,7 @@
         statusEl.classList.add('live');
         if (escalateLink) escalateLink.style.display = 'none';
         clearWaitingTimeout();
+        startPolling();
         break;
       case 'closed':
         statusEl.textContent = 'Chat ended';
@@ -352,12 +354,16 @@
 
       if (data.messages && data.messages.length) {
         data.messages.forEach(m => {
-          // Don't re-render user messages we already showed
+          // Skip messages we've already rendered
+          if (m.id && renderedMessageIds.has(m.id)) return;
+          if (m.id) renderedMessageIds.add(m.id);
+
+          // Don't re-render user messages we already showed locally
           if (m.role !== 'user') {
             addMessage(m.role, m.content);
           }
-          lastPollTime = m.created_at;
         });
+        lastPollTime = data.messages[data.messages.length - 1].created_at;
       }
 
       if (data.status !== chatStatus) {
@@ -379,6 +385,7 @@
       chatStatus = 'ai';
       lastPollTime = '1970-01-01T00:00:00Z';
       showingEscalateForm = false;
+      renderedMessageIds = new Set();
       document.getElementById('ccw-messages').innerHTML = '';
       restoreInputArea();
       updateStatus('ai');
