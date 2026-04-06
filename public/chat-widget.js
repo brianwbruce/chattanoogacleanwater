@@ -277,11 +277,29 @@
     btn.disabled = true;
 
     try {
+      // If no session exists yet, create one via a dummy AI call
+      if (!sessionId) {
+        const initRes = await fetch('/.netlify/functions/chat-ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: null, message: 'I would like to speak with someone.' }),
+        });
+        const initData = await initRes.json();
+        if (initData.session_id) {
+          sessionId = initData.session_id;
+          sessionStorage.setItem('ccw_chat_session', sessionId);
+        }
+      }
+
       const res = await fetch('/.netlify/functions/chat-escalate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id: sessionId, first_name: name, phone }),
       });
+
+      if (!res.ok) {
+        throw new Error('Escalation failed: ' + res.status);
+      }
 
       const data = await res.json();
 
@@ -289,18 +307,22 @@
         showingEscalateForm = false;
         const newStatus = data.status || 'waiting';
 
-        // Poll first to pick up the system message before changing UI
-        await pollNow();
-
         if (newStatus === 'closed') {
-          // Mark is away — show the callback message (already added by pollNow)
+          // Mark is away — show callback message directly
+          addMessage('ai', "Our team is currently working with other customers. Please choose a time for a callback and we'll reach out to you directly.");
+          addMessage('ai', "Schedule a Callback");
           updateStatus('closed');
         } else {
+          // Poll to pick up the system message
+          await pollNow();
           updateStatus(newStatus);
           restoreInputArea();
         }
+      } else {
+        throw new Error('Escalation returned failure');
       }
     } catch (err) {
+      console.error('Escalation error:', err);
       btn.textContent = 'Connect Me';
       btn.disabled = false;
       addMessage('ai', "Sorry, there was a problem connecting you. Please try again.");
