@@ -30,6 +30,7 @@
 
   <link rel="stylesheet" href="/style.css" />
   <link rel="stylesheet" href="/blog.css" />
+  <link rel="stylesheet" href="/chat-widget.css" />
 
   <script type="application/ld+json">
   {
@@ -50,6 +51,7 @@
       <a href="/" class="nav-logo"><img src="/logo.png" alt="Chattanooga Clean Water" class="nav-logo-img" /></a>
       <div class="nav-links" id="nav-links">
         <a href="/learn/">Learn</a>
+        <button onclick="document.getElementById('ccw-bubble').click();document.getElementById('nav-links').classList.remove('open');" class="btn btn-nav" style="background:#2AA198;color:#fff;">Chat Now</button>
         <a href="/#form" class="btn btn-primary btn-nav">Free Consultation</a>
       </div>
       <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
@@ -139,6 +141,7 @@
   </footer>
 
   <script src="/tracker.js"></script>
+  <script src="/chat-widget.js"></script>
   <script>
     window.addEventListener('scroll', () => {
       document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 10);
