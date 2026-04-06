@@ -86,7 +86,8 @@ function renderAll() {
   renderStats();
   renderTable();
   fetchAnalytics(currentRange);
-  startSessionPolling();
+  fetchChatSessions();
+  if (!sessionPollInterval) startSessionPolling();
 }
 
 function renderStats() {
@@ -255,12 +256,12 @@ document.getElementById('modal-save').addEventListener('click', async () => {
 
     if (!res.ok) throw new Error('Update failed');
 
-    const updated = await res.json();
-
-    // Update local data
-    const idx = leads.findIndex(l => l.id === id);
-    if (idx !== -1 && updated[0]) {
-      leads[idx] = updated[0];
+    // Re-fetch all leads from server for accurate data
+    const refreshRes = await fetch('/.netlify/functions/get-leads', {
+      headers: { 'X-Admin-Password': getPassword() },
+    });
+    if (refreshRes.ok) {
+      leads = await refreshRes.json();
     }
 
     closeModal();
