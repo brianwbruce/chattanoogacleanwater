@@ -347,6 +347,17 @@ tr:hover { background: var(--off-white); }
 
 .btn-cancel:hover { background: #C8D0D4; }
 
+.btn-delete {
+  background: transparent;
+  color: var(--red);
+  border: 1.5px solid var(--red);
+}
+
+.btn-delete:hover {
+  background: var(--red);
+  color: var(--white);
+}
+
 /* ── Live Chats Section ────────────────────────── */
 .live-chats-section {
   margin-bottom: 32px;

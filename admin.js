@@ -272,6 +272,40 @@ document.getElementById('modal-save').addEventListener('click', async () => {
   }
 });
 
+// ── Delete Lead ──────────────────────────────────────
+document.getElementById('modal-delete').addEventListener('click', async () => {
+  const id = document.getElementById('edit-id').value;
+  if (!id) return;
+
+  if (!confirm('Are you sure you want to delete this lead? This cannot be undone.')) return;
+
+  const delBtn = document.getElementById('modal-delete');
+  delBtn.textContent = 'Deleting...';
+  delBtn.disabled = true;
+
+  try {
+    const res = await fetch('/.netlify/functions/delete-lead', {
+      method: 'POST',
+      headers: apiHeaders(),
+      body: JSON.stringify({ id }),
+    });
+
+    if (!res.ok) throw new Error('Delete failed');
+
+    // Remove from local data
+    leads = leads.filter(l => l.id !== id);
+
+    closeModal();
+    renderAll();
+
+  } catch (err) {
+    alert('Failed to delete lead. Please try again.');
+  } finally {
+    delBtn.textContent = 'Delete Lead';
+    delBtn.disabled = false;
+  }
+});
+
 // ── Keyboard shortcuts ────────────────────────────
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {

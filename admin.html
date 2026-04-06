@@ -199,9 +199,12 @@
       </select>
       <label for="edit-notes">Notes</label>
       <textarea id="edit-notes" placeholder="Add notes about this lead..."></textarea>
-      <div class="modal-actions">
-        <button class="btn btn-sm btn-cancel" id="modal-cancel">Cancel</button>
-        <button class="btn btn-sm btn-save" id="modal-save">Save</button>
+      <div class="modal-actions" style="justify-content:space-between;">
+        <button class="btn btn-sm btn-delete" id="modal-delete">Delete Lead</button>
+        <div style="display:flex;gap:12px;">
+          <button class="btn btn-sm btn-cancel" id="modal-cancel">Cancel</button>
+          <button class="btn btn-sm btn-save" id="modal-save">Save</button>
+        </div>
       </div>
     </div>
   </div>
