@@ -287,10 +287,18 @@
 
       if (data.success) {
         showingEscalateForm = false;
-        updateStatus(data.status || 'waiting');
-        restoreInputArea();
-        // The escalation function inserts a system message — poll will pick it up
-        pollNow();
+        const newStatus = data.status || 'waiting';
+
+        // Poll first to pick up the system message before changing UI
+        await pollNow();
+
+        if (newStatus === 'closed') {
+          // Mark is away — show the callback message (already added by pollNow)
+          updateStatus('closed');
+        } else {
+          updateStatus(newStatus);
+          restoreInputArea();
+        }
       }
     } catch (err) {
       btn.textContent = 'Connect Me';
