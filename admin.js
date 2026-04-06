@@ -349,28 +349,53 @@ function renderChatSessions() {
     badge.style.display = 'none';
   }
 
-  if (!chatSessions.length) {
+  const activeSessions = chatSessions.filter(s => s.status === 'waiting' || s.status === 'active');
+  const recentSessions = chatSessions.filter(s => s.status === 'closed');
+
+  if (!activeSessions.length && !recentSessions.length) {
     list.innerHTML = '<div class="analytics-empty">No active chats.</div>';
     return;
   }
 
-  list.innerHTML = chatSessions.map(s => {
-    const name = s.user_name || 'Anonymous';
-    const statusCls = s.status === 'waiting' ? 'badge-waiting' : s.status === 'active' ? 'badge-active-chat' : 'badge-ai';
-    const statusLabel = s.status === 'waiting' ? 'Waiting' : s.status === 'active' ? 'Live' : 'AI';
-    const preview = s.last_message ? (s.last_message.length > 60 ? s.last_message.slice(0, 60) + '...' : s.last_message) : '';
-    const time = timeAgo(s.updated_at);
+  let html = '';
 
-    return `
-      <div class="chat-card" onclick="openChatPanel('${s.id}')">
-        <div class="chat-card-info">
-          <div class="chat-card-name">${esc(name)} ${s.user_phone ? '(' + esc(s.user_phone) + ')' : ''} <span class="badge ${statusCls}">${statusLabel}</span></div>
-          <div class="chat-card-preview">${esc(preview)}</div>
-        </div>
-        <div class="chat-card-time">${time}</div>
+  if (activeSessions.length) {
+    html += activeSessions.map(s => renderChatCard(s)).join('');
+  }
+
+  if (recentSessions.length) {
+    html += `<div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;color:#5A6B73;margin:16px 0 8px;font-weight:600;">Recent (last 24h)</div>`;
+    html += recentSessions.map(s => renderChatCard(s)).join('');
+  }
+
+  if (!activeSessions.length && recentSessions.length) {
+    html = '<div class="analytics-empty" style="padding:16px;">No active chats right now.</div>' + html;
+  }
+
+  list.innerHTML = html;
+}
+
+function renderChatCard(s) {
+  const name = s.user_name || 'Anonymous';
+  const statusMap = {
+    'waiting': { cls: 'badge-waiting', label: 'Waiting' },
+    'active': { cls: 'badge-active-chat', label: 'Live' },
+    'closed': { cls: 'badge-lost', label: 'Closed' },
+    'ai': { cls: 'badge-ai', label: 'AI' },
+  };
+  const st = statusMap[s.status] || statusMap['ai'];
+  const preview = s.last_message ? (s.last_message.length > 60 ? s.last_message.slice(0, 60) + '...' : s.last_message) : '';
+  const time = timeAgo(s.updated_at);
+
+  return `
+    <div class="chat-card" onclick="openChatPanel('${s.id}')">
+      <div class="chat-card-info">
+        <div class="chat-card-name">${esc(name)} ${s.user_phone ? '(' + esc(s.user_phone) + ')' : ''} <span class="badge ${st.cls}">${st.label}</span></div>
+        <div class="chat-card-preview">${esc(preview)}</div>
       </div>
-    `;
-  }).join('');
+      <div class="chat-card-time">${time}</div>
+    </div>
+  `;
 }
 
 function timeAgo(iso) {
