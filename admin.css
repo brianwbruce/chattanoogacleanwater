@@ -258,6 +258,8 @@ tr:hover { background: var(--off-white); }
 .badge-qualified  { background: #E0F2F1; color: #00695C; }
 .badge-won        { background: #E8F5E9; color: #2E7D32; }
 .badge-lost       { background: #F5F5F5; color: #757575; }
+.badge-calendly   { background: #E3F2FD; color: #1565C0; }
+.badge-callback   { background: #FFF8E1; color: #F57F17; }
 
 .variant-tag {
   display: inline-block;

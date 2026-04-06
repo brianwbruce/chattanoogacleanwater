@@ -179,6 +179,8 @@ function statusBadge(status) {
     'Qualified': 'badge-qualified',
     'Closed-Won': 'badge-won',
     'Closed-Lost': 'badge-lost',
+    'Calendly': 'badge-calendly',
+    'Callback': 'badge-callback',
   }[status] || 'badge-new';
   return `<span class="badge ${cls}">${esc(status)}</span>`;
 }

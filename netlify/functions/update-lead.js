@@ -24,7 +24,7 @@ export default async (req) => {
       });
     }
 
-    const validStatuses = ['New', 'Contacted', 'Qualified', 'Closed-Won', 'Closed-Lost'];
+    const validStatuses = ['New', 'Contacted', 'Qualified', 'Closed-Won', 'Closed-Lost', 'Calendly', 'Callback'];
     if (status && !validStatuses.includes(status)) {
       return new Response(JSON.stringify({ error: 'Invalid status' }), {
         status: 400,

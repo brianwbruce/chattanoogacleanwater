@@ -90,7 +90,7 @@
     // Check for calendly trigger
     let extra = '';
     if (content.includes("Schedule a Callback")) {
-      extra = `<br><a href="${CALENDLY_URL}" target="_blank" class="ccw-calendly-btn">Schedule a Callback</a>`
+      extra = `<br><a href="${CALENDLY_URL}" target="_blank" class="ccw-calendly-btn" onclick="window.ccwCalendlyClicked()">Schedule a Callback</a>`
         + `<br><button class="ccw-callback-anytime-btn" onclick="window.ccwCallbackAnytime()">Call me back anytime</button>`;
     }
 
@@ -385,6 +385,18 @@
       addMessage('ai', "Hi! I'm here to help with questions about water quality in the Chattanooga area. What would you like to know?");
     });
   }
+
+  // ── Calendly Clicked ────────────────────────────
+  window.ccwCalendlyClicked = async function() {
+    if (!sessionId) return;
+    try {
+      await fetch('/.netlify/functions/callback-anytime', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId, type: 'calendly' }),
+      });
+    } catch (_) {}
+  };
 
   // ── Callback Anytime ────────────────────────────
   window.ccwCallbackAnytime = async function() {

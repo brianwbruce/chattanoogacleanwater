@@ -5,7 +5,8 @@ export default async (req) => {
   }
 
   try {
-    const { session_id } = await req.json();
+    const { session_id, type } = await req.json();
+    const isCalendly = type === 'calendly';
 
     if (!session_id) {
       return new Response(JSON.stringify({ error: 'session_id required' }), {
@@ -41,8 +42,8 @@ export default async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          notes: 'CALLBACK REQUESTED: Call back anytime',
-          status: 'Contacted',
+          notes: isCalendly ? 'Scheduled callback via Calendly' : 'CALLBACK REQUESTED: Call back anytime',
+          status: isCalendly ? 'Calendly' : 'Callback',
           updated_at: new Date().toISOString(),
         }),
       });
