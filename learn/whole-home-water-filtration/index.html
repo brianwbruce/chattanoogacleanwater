@@ -48,10 +48,13 @@
   <nav class="nav" id="nav">
     <div class="container nav-inner">
       <a href="/" class="nav-logo"><img src="/logo.png" alt="Chattanooga Clean Water" class="nav-logo-img" /></a>
-      <div class="blog-nav-links">
+      <div class="nav-links" id="nav-links">
         <a href="/learn/">Learn</a>
         <a href="/#form" class="btn btn-primary btn-nav">Free Consultation</a>
       </div>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </nav>
 
@@ -148,6 +151,9 @@
   <script>
     window.addEventListener('scroll', () => {
       document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 10);
+    });
+    document.getElementById('nav-hamburger').addEventListener('click', () => {
+      document.getElementById('nav-links').classList.toggle('open');
     });
   </script>
 </body>
