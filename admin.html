@@ -99,6 +99,44 @@
         </div>
       </div>
 
+      <!-- ── Live Chats Section ────────────── -->
+      <div class="live-chats-section" id="live-chats-section">
+        <div class="live-chats-header">
+          <h2>Live Chats <span class="chat-count-badge" id="chat-count-badge" style="display:none;">0</span></h2>
+          <button class="btn btn-sm btn-ghost" id="refresh-chats">Refresh</button>
+        </div>
+        <div id="chat-sessions-list">
+          <div class="analytics-empty">No active chats.</div>
+        </div>
+      </div>
+
+      <!-- ── Chat Modal ──────────────────────── -->
+      <div class="modal-overlay" id="chat-modal-overlay">
+        <div class="modal chat-modal">
+          <div class="chat-modal-header">
+            <div>
+              <h2 id="chat-modal-name">Chat</h2>
+              <div class="chat-modal-phone" id="chat-modal-phone"></div>
+            </div>
+            <div class="chat-modal-actions">
+              <button class="btn btn-sm btn-save" id="chat-join-btn">Join Chat</button>
+              <button class="btn btn-sm btn-cancel" id="chat-unavail-btn">Unavailable</button>
+              <button class="btn btn-sm btn-ghost" id="chat-close-btn">Close Chat</button>
+              <button class="btn btn-sm btn-ghost" id="chat-modal-close">&times;</button>
+            </div>
+          </div>
+          <div class="chat-modal-messages" id="chat-modal-messages"></div>
+          <div class="chat-modal-input" id="chat-modal-input">
+            <div class="ccw-chat-input-row">
+              <input type="text" class="ccw-chat-input" id="chat-mark-input" placeholder="Type a reply..." maxlength="2000" disabled />
+              <button class="ccw-chat-send" id="chat-mark-send" disabled>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Filters -->
       <div class="filters">
         <input type="text" id="search-input" placeholder="Search by name, email, or phone..." />

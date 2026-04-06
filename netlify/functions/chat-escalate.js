@@ -1,0 +1,112 @@
+// Escalate chat to Mark — creates lead, updates session, sends Twilio SMS
+export default async (req) => {
+  if (req.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405 });
+  }
+
+  try {
+    const { session_id, first_name, phone } = await req.json();
+
+    if (!session_id || !first_name || !phone) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const SUPABASE_URL = Netlify.env.get('SUPABASE_URL');
+    const SUPABASE_KEY = Netlify.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    // Create lead
+    const leadRes = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify({
+        first_name,
+        last_name: '',
+        phone,
+        variant: 'chat',
+        status: 'New',
+      }),
+    });
+
+    const leads = await leadRes.json();
+    const leadId = leads[0]?.id || null;
+
+    // Update chat session
+    await fetch(`${SUPABASE_URL}/rest/v1/chat_sessions?id=eq.${session_id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_name: first_name,
+        user_phone: phone,
+        lead_id: leadId,
+        status: 'waiting',
+        updated_at: new Date().toISOString(),
+      }),
+    });
+
+    // Insert system message
+    await fetch(`${SUPABASE_URL}/rest/v1/chat_messages`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        session_id,
+        role: 'ai',
+        content: "I've notified Mark, our local water quality specialist. He'll join this chat shortly. Feel free to keep typing — he'll see your messages when he connects.",
+      }),
+    });
+
+    // Send Twilio SMS (fire-and-forget)
+    try {
+      const TWILIO_SID = Netlify.env.get('TWILIO_ACCOUNT_SID');
+      const TWILIO_TOKEN = Netlify.env.get('TWILIO_AUTH_TOKEN');
+      const TWILIO_FROM = Netlify.env.get('TWILIO_FROM_NUMBER');
+      const MARK_PHONE = Netlify.env.get('MARK_PHONE_NUMBER');
+
+      if (TWILIO_SID && TWILIO_TOKEN && TWILIO_FROM && MARK_PHONE) {
+        const auth = btoa(`${TWILIO_SID}:${TWILIO_TOKEN}`);
+        await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            To: MARK_PHONE,
+            From: TWILIO_FROM,
+            Body: `New chat request from ${first_name} (${phone}) on Chattanooga Clean Water. Log in to the admin dashboard to respond.`,
+          }).toString(),
+        });
+      }
+    } catch (smsErr) {
+      console.error('Twilio SMS error:', smsErr);
+      // Don't fail the escalation if SMS fails
+    }
+
+    return new Response(JSON.stringify({ success: true, status: 'waiting' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+  } catch (err) {
+    console.error('Escalation error:', err);
+    return new Response(JSON.stringify({ error: 'Escalation failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+};

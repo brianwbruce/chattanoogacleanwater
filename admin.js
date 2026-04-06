@@ -86,6 +86,7 @@ function renderAll() {
   renderStats();
   renderTable();
   fetchAnalytics(currentRange);
+  startSessionPolling();
 }
 
 function renderStats() {
@@ -273,8 +274,247 @@ document.getElementById('modal-save').addEventListener('click', async () => {
 
 // ── Keyboard shortcuts ────────────────────────────
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') {
+    closeModal();
+    closeChatModal();
+  }
 });
+
+// ── Live Chats ────────────────────────────────────
+let chatSessions = [];
+let activeChatId = null;
+let chatPollInterval = null;
+let sessionPollInterval = null;
+let chatLastPoll = '1970-01-01T00:00:00Z';
+
+// Start polling for sessions when dashboard loads
+function startSessionPolling() {
+  fetchChatSessions();
+  sessionPollInterval = setInterval(fetchChatSessions, 10000);
+}
+
+async function fetchChatSessions() {
+  try {
+    const res = await fetch('/.netlify/functions/chat-sessions', {
+      headers: { 'X-Admin-Password': getPassword() },
+    });
+    if (!res.ok) return;
+    chatSessions = await res.json();
+    renderChatSessions();
+  } catch (_) {}
+}
+
+function renderChatSessions() {
+  const list = document.getElementById('chat-sessions-list');
+  const badge = document.getElementById('chat-count-badge');
+
+  const waiting = chatSessions.filter(s => s.status === 'waiting');
+
+  if (waiting.length > 0) {
+    badge.textContent = waiting.length;
+    badge.style.display = 'inline';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  if (!chatSessions.length) {
+    list.innerHTML = '<div class="analytics-empty">No active chats.</div>';
+    return;
+  }
+
+  list.innerHTML = chatSessions.map(s => {
+    const name = s.user_name || 'Anonymous';
+    const statusCls = s.status === 'waiting' ? 'badge-waiting' : s.status === 'active' ? 'badge-active-chat' : 'badge-ai';
+    const statusLabel = s.status === 'waiting' ? 'Waiting' : s.status === 'active' ? 'Live' : 'AI';
+    const preview = s.last_message ? (s.last_message.length > 60 ? s.last_message.slice(0, 60) + '...' : s.last_message) : '';
+    const time = timeAgo(s.updated_at);
+
+    return `
+      <div class="chat-card" onclick="openChatPanel('${s.id}')">
+        <div class="chat-card-info">
+          <div class="chat-card-name">${esc(name)} ${s.user_phone ? '(' + esc(s.user_phone) + ')' : ''} <span class="badge ${statusCls}">${statusLabel}</span></div>
+          <div class="chat-card-preview">${esc(preview)}</div>
+        </div>
+        <div class="chat-card-time">${time}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  return Math.floor(hrs / 24) + 'd ago';
+}
+
+// Chat modal
+window.openChatPanel = async function(sessionId) {
+  activeChatId = sessionId;
+  chatLastPoll = '1970-01-01T00:00:00Z';
+
+  const session = chatSessions.find(s => s.id === sessionId);
+  document.getElementById('chat-modal-name').textContent = session?.user_name || 'Chat';
+  document.getElementById('chat-modal-phone').textContent = session?.user_phone || '';
+
+  const isActive = session?.status === 'active';
+  const isWaiting = session?.status === 'waiting';
+
+  document.getElementById('chat-join-btn').style.display = isWaiting ? 'inline-block' : 'none';
+  document.getElementById('chat-unavail-btn').style.display = isWaiting ? 'inline-block' : 'none';
+  document.getElementById('chat-close-btn').style.display = (isActive || isWaiting) ? 'inline-block' : 'none';
+  document.getElementById('chat-mark-input').disabled = !isActive;
+  document.getElementById('chat-mark-send').disabled = !isActive;
+
+  document.getElementById('chat-modal-messages').innerHTML = '';
+  document.getElementById('chat-modal-overlay').classList.add('show');
+
+  // Load all messages
+  await pollChatMessages(true);
+
+  // Start polling
+  if (chatPollInterval) clearInterval(chatPollInterval);
+  chatPollInterval = setInterval(() => pollChatMessages(false), 3000);
+};
+
+async function pollChatMessages(loadAll) {
+  if (!activeChatId) return;
+  const since = loadAll ? '1970-01-01T00:00:00Z' : chatLastPoll;
+
+  try {
+    const res = await fetch(`/.netlify/functions/chat-poll?session_id=${activeChatId}&since=${encodeURIComponent(since)}`);
+    const data = await res.json();
+
+    if (data.messages && data.messages.length) {
+      const container = document.getElementById('chat-modal-messages');
+      if (loadAll) container.innerHTML = '';
+
+      data.messages.forEach(m => {
+        const div = document.createElement('div');
+        const cls = m.role === 'user' ? 'chat-modal-msg-user' : m.role === 'mark' ? 'chat-modal-msg-mark' : 'chat-modal-msg-ai';
+        const label = m.role === 'user' ? 'Customer' : m.role === 'mark' ? 'Mark' : 'AI';
+        div.className = `chat-modal-msg ${cls}`;
+        div.innerHTML = `<div class="chat-modal-msg-label">${label}</div>${esc(m.content)}`;
+        container.appendChild(div);
+        chatLastPoll = m.created_at;
+      });
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Update button states if status changed
+    if (data.status) {
+      const session = chatSessions.find(s => s.id === activeChatId);
+      if (session) session.status = data.status;
+
+      const isActive = data.status === 'active';
+      const isWaiting = data.status === 'waiting';
+      document.getElementById('chat-join-btn').style.display = isWaiting ? 'inline-block' : 'none';
+      document.getElementById('chat-unavail-btn').style.display = isWaiting ? 'inline-block' : 'none';
+      document.getElementById('chat-close-btn').style.display = (isActive || isWaiting) ? 'inline-block' : 'none';
+      document.getElementById('chat-mark-input').disabled = !isActive;
+      document.getElementById('chat-mark-send').disabled = !isActive;
+
+      if (data.status === 'closed') {
+        document.getElementById('chat-mark-input').disabled = true;
+        document.getElementById('chat-mark-send').disabled = true;
+      }
+    }
+  } catch (_) {}
+}
+
+function closeChatModal() {
+  document.getElementById('chat-modal-overlay').classList.remove('show');
+  activeChatId = null;
+  if (chatPollInterval) {
+    clearInterval(chatPollInterval);
+    chatPollInterval = null;
+  }
+}
+
+document.getElementById('chat-modal-overlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeChatModal();
+});
+document.getElementById('chat-modal-close').addEventListener('click', closeChatModal);
+
+// Join chat
+document.getElementById('chat-join-btn').addEventListener('click', async () => {
+  if (!activeChatId) return;
+  await fetch('/.netlify/functions/chat-status', {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({ session_id: activeChatId, status: 'active' }),
+  });
+  document.getElementById('chat-join-btn').style.display = 'none';
+  document.getElementById('chat-unavail-btn').style.display = 'none';
+  document.getElementById('chat-mark-input').disabled = false;
+  document.getElementById('chat-mark-send').disabled = false;
+  document.getElementById('chat-mark-input').focus();
+  pollChatMessages(false);
+  fetchChatSessions();
+});
+
+// Mark unavailable
+document.getElementById('chat-unavail-btn').addEventListener('click', async () => {
+  if (!activeChatId) return;
+  await fetch('/.netlify/functions/chat-status', {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({ session_id: activeChatId, status: 'unavailable' }),
+  });
+  closeChatModal();
+  fetchChatSessions();
+});
+
+// Close chat
+document.getElementById('chat-close-btn').addEventListener('click', async () => {
+  if (!activeChatId) return;
+  await fetch('/.netlify/functions/chat-status', {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({ session_id: activeChatId, status: 'closed' }),
+  });
+  closeChatModal();
+  fetchChatSessions();
+});
+
+// Send Mark's message
+document.getElementById('chat-mark-send').addEventListener('click', sendMarkMessage);
+document.getElementById('chat-mark-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMarkMessage();
+  }
+});
+
+async function sendMarkMessage() {
+  const input = document.getElementById('chat-mark-input');
+  const text = input.value.trim();
+  if (!text || !activeChatId) return;
+
+  input.value = '';
+
+  // Optimistic render
+  const container = document.getElementById('chat-modal-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-modal-msg chat-modal-msg-mark';
+  div.innerHTML = `<div class="chat-modal-msg-label">Mark</div>${esc(text)}`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+
+  await fetch('/.netlify/functions/chat-send', {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({ session_id: activeChatId, role: 'mark', content: text }),
+  });
+}
+
+// Refresh button
+document.getElementById('refresh-chats').addEventListener('click', fetchChatSessions);
 
 // ── Analytics ─────────────────────────────────────
 let currentRange = 7;
