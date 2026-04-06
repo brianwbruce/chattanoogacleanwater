@@ -90,7 +90,8 @@
     // Check for calendly trigger
     let extra = '';
     if (content.includes("Schedule a Callback")) {
-      extra = `<br><a href="${CALENDLY_URL}" target="_blank" class="ccw-calendly-btn">Schedule a Callback</a>`;
+      extra = `<br><a href="${CALENDLY_URL}" target="_blank" class="ccw-calendly-btn">Schedule a Callback</a>`
+        + `<br><button class="ccw-callback-anytime-btn" onclick="window.ccwCallbackAnytime()">Call me back anytime</button>`;
     }
 
     div.innerHTML = (labelText ? `<div class="ccw-msg-label">${labelText}</div>` : '') + escHtml(content) + extra;
@@ -384,6 +385,32 @@
       addMessage('ai', "Hi! I'm here to help with questions about water quality in the Chattanooga area. What would you like to know?");
     });
   }
+
+  // ── Callback Anytime ────────────────────────────
+  window.ccwCallbackAnytime = async function() {
+    if (!sessionId) return;
+    try {
+      // Update lead notes via chat-send with a system message
+      await fetch('/.netlify/functions/chat-send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          role: 'user',
+          content: 'I\'d like a callback at any time that works.',
+        }),
+      });
+      // Update the lead notes via the update endpoint
+      await fetch('/.netlify/functions/callback-anytime', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId }),
+      });
+      addMessage('ai', "Got it! We'll call you back as soon as we're available. Talk to you soon!");
+    } catch (_) {
+      addMessage('ai', "Got it! We'll call you back as soon as we're available. Talk to you soon!");
+    }
+  };
 
   // ── Restore Session ────────────────────────────
   async function restoreSession() {

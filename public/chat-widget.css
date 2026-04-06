@@ -314,6 +314,25 @@
   background: #0F3D52;
 }
 
+.ccw-callback-anytime-btn {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  color: #1B5E7B;
+  border: 1.5px solid #1B5E7B;
+  border-radius: 8px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ccw-callback-anytime-btn:hover {
+  background: #1B5E7B;
+  color: #fff;
+}
+
 /* New chat button */
 .ccw-new-chat-btn {
   display: block;
