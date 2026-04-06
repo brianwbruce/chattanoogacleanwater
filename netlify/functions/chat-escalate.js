@@ -17,7 +17,7 @@ export default async (req) => {
     const SUPABASE_URL = Netlify.env.get('SUPABASE_URL');
     const SUPABASE_KEY = Netlify.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    // Create lead
+    // Create lead (variant 'B' since we have phone number)
     const leadRes = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
       method: 'POST',
       headers: {
@@ -30,13 +30,18 @@ export default async (req) => {
         first_name,
         last_name: '',
         phone,
-        variant: 'chat',
+        variant: 'B',
         status: 'New',
+        notes: 'Lead from chat escalation',
       }),
     });
 
+    if (!leadRes.ok) {
+      console.error('Lead creation failed:', await leadRes.text());
+    }
+
     const leads = await leadRes.json();
-    const leadId = leads[0]?.id || null;
+    const leadId = Array.isArray(leads) && leads[0] ? leads[0].id : null;
 
     // Update chat session
     await fetch(`${SUPABASE_URL}/rest/v1/chat_sessions?id=eq.${session_id}`, {
