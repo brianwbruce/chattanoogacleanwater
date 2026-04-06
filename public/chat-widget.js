@@ -8,7 +8,7 @@
   let showingEscalateForm = false;
   let waitingTimeout = null;
 
-  const CALENDLY_URL = 'https://calendly.com/chattanoogacleanwater';
+  const CALENDLY_URL = 'https://calendly.com/chattanoogacleanwater/30min';
   const WAITING_TIMEOUT_MS = 120000; // 2 minutes
 
   // ── Build DOM ──────────────────────────────────
