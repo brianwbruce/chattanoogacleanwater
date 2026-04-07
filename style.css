@@ -68,6 +68,15 @@ a { color: inherit; text-decoration: none; }
 .nav-logo {
   display: flex;
   align-items: center;
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0A4C6A;
+  letter-spacing: -0.3px;
+}
+
+.nav-logo span {
+  color: #2AA198;
 }
 
 .nav-logo-img {
